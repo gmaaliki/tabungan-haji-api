@@ -3,7 +3,7 @@ import { SetoranSchema, PenarikanSchema } from "./transaksi.schema";
 import { transaksiService } from "./transaksi.service";
 
 export const transaksiController = {
-    async setoran(req: Request, res: Response) {
+    async setoran(req: Request<{ tabunganId: string }>, res: Response) {
         const parsed = SetoranSchema.safeParse(req.body);
         if (!parsed.success) {
             return res.status(400).json({ error: "VALIDATION_ERR", details: parsed.error.flatten() });
@@ -18,7 +18,7 @@ export const transaksiController = {
         }
     },
 
-    async penarikan(req: Request, res: Response) {
+    async penarikan(req: Request<{ tabunganId: string }>, res: Response) {
         const parsed = PenarikanSchema.safeParse(req.body);
         if (!parsed.success) {
             return res.status(400).json({ error: "VALIDATION_ERR", details: parsed.error.flatten() });
@@ -34,12 +34,12 @@ export const transaksiController = {
         }
     },
 
-    async findByTabungan(req: Request, res: Response) {
+    async findByTabungan(req: Request<{ tabunganId: string }>, res: Response) {
         const data = await transaksiService.findByTabungan(req.params.tabunganId);
         return res.status(200).json({ data, total: data.length, message: "OK" });
     },
 
-    async findById(req: Request, res: Response) {
+    async findById(req: Request<{ tabunganId: string; id: string }>, res: Response) {
         const transaksi = await transaksiService.findById(req.params.id);
         if (!transaksi) {
             return res.status(404).json({ error: "NOT_FOUND", message: "Transaksi tidak ditemukan" });

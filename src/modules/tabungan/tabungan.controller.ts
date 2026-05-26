@@ -3,7 +3,7 @@ import { UpdateStatusTabunganSchema } from "./tabungan.schema";
 import { tabunganService } from "./tabungan.service";
 
 export const tabunganController = {
-    async create(req: Request, res: Response) {
+    async create(req: Request<{ nasabahId: string }>, res: Response) {
         try {
             const tabungan = await tabunganService.create(req.params.nasabahId);
             return res.status(201).json({ data: tabungan, message: "Rekening tabungan haji berhasil dibuka" });
@@ -18,7 +18,7 @@ export const tabunganController = {
         return res.status(200).json({ data, total: data.length, message: "OK" });
     },
 
-    async findById(req: Request, res: Response) {
+    async findById(req: Request<{ id: string }>, res: Response) {
         const tabungan = await tabunganService.findById(req.params.id);
         if (!tabungan) {
             return res.status(404).json({ error: "NOT_FOUND", message: "Rekening tabungan tidak ditemukan" });
@@ -26,12 +26,12 @@ export const tabunganController = {
         return res.status(200).json({ data: tabungan, message: "OK" });
     },
 
-    async findByNasabah(req: Request, res: Response) {
+    async findByNasabah(req: Request<{ nasabahId: string }>, res: Response) {
         const data = await tabunganService.findByNasabah(req.params.nasabahId);
         return res.status(200).json({ data, total: data.length, message: "OK" });
     },
 
-    async updateStatus(req: Request, res: Response) {
+    async updateStatus(req: Request<{ id: string }>, res: Response) {
         const parsed = UpdateStatusTabunganSchema.safeParse(req.body);
         if (!parsed.success) {
             return res.status(400).json({ error: "VALIDATION_ERR", details: parsed.error.flatten() });
@@ -46,7 +46,7 @@ export const tabunganController = {
         }
     },
 
-    async delete(req: Request, res: Response) {
+    async delete(req: Request<{ id: string }>, res: Response) {
         try {
             await tabunganService.delete(req.params.id);
             return res.status(200).json({ message: "Rekening tabungan berhasil dihapus" });

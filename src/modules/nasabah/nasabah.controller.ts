@@ -25,7 +25,7 @@ export const nasabahController = {
         return res.status(200).json({ data, total: data.length, message: "OK" });
     },
 
-    async findById(req: Request, res: Response) {
+    async findById(req: Request<{ id: string }>, res: Response) {
         const nasabah = await nasabahService.findById(req.params.id);
         if (!nasabah) {
             return res.status(404).json({ error: "NOT_FOUND", message: "Nasabah tidak ditemukan" });
@@ -33,7 +33,7 @@ export const nasabahController = {
         return res.status(200).json({ data: nasabah, message: "OK" });
     },
 
-    async update(req: Request, res: Response) {
+    async update(req: Request<{ id: string }>, res: Response) {
         const parsed = UpdateNasabahSchema.safeParse(req.body);
         if (!parsed.success) {
             return res.status(400).json({ error: "VALIDATION_ERR", details: parsed.error.flatten() });
@@ -52,7 +52,7 @@ export const nasabahController = {
         }
     },
 
-    async delete(req: Request, res: Response) {
+    async delete(req: Request<{ id: string }>, res: Response) {
         try {
             await nasabahService.delete(req.params.id);
             return res.status(200).json({ message: "Nasabah berhasil dihapus" });
