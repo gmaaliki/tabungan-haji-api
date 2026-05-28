@@ -6,6 +6,7 @@ export const RegisterSchema = z.object({
     .string()
     .min(8, "Password minimal 8 karakter")
     .max(72, "Password maksimal 72 karakter"),
+  role: z.enum(["USER", "ADMIN"]).optional(),
 });
 
 export const LoginSchema = z.object({

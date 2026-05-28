@@ -41,6 +41,7 @@ export const tabunganService = {
     findByNasabah: (nasabahId: string) =>
         prisma.tabunganHaji.findMany({
             where: { nasabahId },
+            omit: { nasabahId: true },
             orderBy: { dibukaAt: "desc" },
         }),
 

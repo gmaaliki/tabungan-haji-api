@@ -32,11 +32,11 @@ function monthRange(tahun: number, bulan: number) {
 }
 
 export const laporanService = {
-    transaksiBulananCsv: async (tahun: number, bulan: number, userId?: string) => {
+    transaksiBulananCsv: async (tahun: number, bulan: number, tabunganId?: string) => {
         const { start, end } = monthRange(tahun, bulan);
 
         const where: Prisma.TransaksiWhereInput = { waktu: { gte: start, lt: end } };
-        if (userId) where.tabungan = { nasabah: { userId } };
+        if (tabunganId) where.tabunganId = tabunganId;
 
         const transaksi = await prisma.transaksi.findMany({
             where,

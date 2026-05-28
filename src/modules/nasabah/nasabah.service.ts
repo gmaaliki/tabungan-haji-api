@@ -1,5 +1,8 @@
+import bcrypt from "bcrypt";
 import { prisma } from "../../lib/prisma";
 import type { CreateNasabahInput, UpdateNasabahInput } from "./nasabah.schema";
+
+const SALT_ROUNDS = 10;
 
 function appError(code: string, message: string): Error {
     const err = new Error(message) as any;
@@ -8,14 +11,18 @@ function appError(code: string, message: string): Error {
 }
 
 export const nasabahService = {
-    create: (data: CreateNasabahInput, userId: string) =>
-        prisma.$transaction(async (tx) => {
-            const nasabah = await tx.nasabah.create({ data: { ...data, userId } });
+    create: async (data: CreateNasabahInput) => {
+        const { password, ...nasabahData } = data;
+        const hashed = await bcrypt.hash(password, SALT_ROUNDS);
+        return prisma.$transaction(async (tx) => {
+            const user = await tx.user.create({ data: { email: nasabahData.email, password: hashed } });
+            const nasabah = await tx.nasabah.create({ data: { ...nasabahData, userId: user.id } });
             await tx.auditLog.create({
-                data: { action: "CREATE", entity: "Nasabah", entityId: nasabah.id, actorId: userId },
+                data: { action: "CREATE", entity: "Nasabah", entityId: nasabah.id, actorId: user.id },
             });
             return nasabah;
-        }),
+        });
+    },
 
     findAll: () => prisma.nasabah.findMany({ where: { deletedAt: null }, orderBy: { createdAt: "desc" } }),
 

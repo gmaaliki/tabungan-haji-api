@@ -18,17 +18,23 @@ function sendCsv(res: Response, filename: string, csv: string) {
     return res.status(200).send(BOM + csv);
 }
 
+async function sendTabunganReport(req: Request<{ tabunganId: string }>, res: Response, prefix: string) {
+    const parsed = LaporanQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+        return res.status(400).json({ error: "VALIDATION_ERR", details: parsed.error.flatten() });
+    }
+    const { tahun, bulan } = resolvePeriode(parsed.data);
+    const periode = `${tahun}-${String(bulan).padStart(2, "0")}`;
+    const csv = await laporanService.transaksiBulananCsv(tahun, bulan, req.params.tabunganId);
+    return sendCsv(res, `${prefix}-${req.params.tabunganId}-${periode}.csv`, csv);
+}
+
 export const laporanController = {
-    async transaksiSaya(req: Request, res: Response) {
-        const parsed = LaporanQuerySchema.safeParse(req.query);
-        if (!parsed.success) {
-            return res.status(400).json({ error: "VALIDATION_ERR", details: parsed.error.flatten() });
-        }
-        const { tahun, bulan } = resolvePeriode(parsed.data);
-        const csv = await laporanService.transaksiBulananCsv(tahun, bulan, req.user!.sub);
-        const periode = `${tahun}-${String(bulan).padStart(2, "0")}`;
-        return sendCsv(res, `laporan-transaksi-saya-${periode}.csv`, csv);
-    },
+    transaksiSaya: (req: Request<{ tabunganId: string }>, res: Response) =>
+        sendTabunganReport(req, res, "laporan-transaksi-saya"),
+
+    transaksiTabungan: (req: Request<{ tabunganId: string }>, res: Response) =>
+        sendTabunganReport(req, res, "laporan-transaksi-tabungan"),
 
     async transaksiSemua(req: Request, res: Response) {
         const parsed = LaporanQuerySchema.safeParse(req.query);

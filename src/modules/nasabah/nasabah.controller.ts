@@ -24,7 +24,7 @@ export const nasabahController = {
             return res.status(400).json({ error: "VALIDATION_ERR", details: parsed.error.flatten() });
         }
         try {
-            const nasabah = await nasabahService.create(parsed.data, req.user!.sub);
+            const nasabah = await nasabahService.create(parsed.data);
             return res.status(201).json({ data: nasabah, message: "Nasabah berhasil didaftarkan" });
         } catch (err: any) {
             if (err.code === "P2002") return duplicateResponse(res, err);

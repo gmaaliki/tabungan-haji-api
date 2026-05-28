@@ -28,7 +28,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/nasabah', requireAuth, nasabahRoutes);
+app.use('/api/v1/nasabah', nasabahRoutes);
 app.use('/api/v1/tabungan-haji', requireAuth, tabunganRoutes);
 app.use('/api/v1/tabungan-haji', requireAuth, transaksiRoutes);
 app.use('/api/v1/laporan', requireAuth, laporanRoutes);

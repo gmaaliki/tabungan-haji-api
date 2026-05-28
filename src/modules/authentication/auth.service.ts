@@ -37,7 +37,7 @@ function sanitize(user: User) {
 export const authService = {
     register: async (data: RegisterInput) => {
         const hashed = await bcrypt.hash(data.password, SALT_ROUNDS);
-        const user = await prisma.user.create({ data: { email: data.email, password: hashed } });
+        const user = await prisma.user.create({ data: { email: data.email, password: hashed, role: data.role } });
         return sanitize(user);
     },
 
@@ -53,7 +53,27 @@ export const authService = {
             expiresIn: EXPIRES_IN_SECONDS,
         });
 
-        return { token, expiresIn: EXPIRES_IN_SECONDS, user: sanitize(user) };
+        return { token, expiresIn: EXPIRES_IN_SECONDS };
+    },
+
+    me: async (userId: string) => {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                nasabah: {
+                    select: { id: true, nik: true, nama: true, email: true, nomorHp: true, deletedAt: true },
+                },
+            },
+        });
+        if (!user) throw appError("NOT_FOUND", "User tidak ditemukan");
+
+        const { password, nasabah, ...identity } = user;
+        const profile =
+            nasabah && !nasabah.deletedAt
+                ? { id: nasabah.id, nik: nasabah.nik, nama: nasabah.nama, email: nasabah.email, nomorHp: nasabah.nomorHp }
+                : null;
+
+        return { ...identity, nasabah: profile };
     },
 
     logout: async (payload: AuthPayload) => {

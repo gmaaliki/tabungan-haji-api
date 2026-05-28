@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { CreateNasabahSchema, UpdateNasabahSchema } from "../src/modules/nasabah/nasabah.schema";
 
-const valid = { nik: "3201234567890001", nama: "Ahmad Fauzi", email: "ahmad@email.com", nomorHp: "081234567890" };
+const valid = { nik: "3201234567890001", nama: "Ahmad Fauzi", email: "ahmad@email.com", nomorHp: "081234567890", password: "rahasia123" };
 
 describe("CreateNasabahSchema", () => {
     it("menerima data valid", () => {
@@ -20,10 +20,25 @@ describe("CreateNasabahSchema", () => {
         expect(CreateNasabahSchema.safeParse({ ...valid, nomorHp: "12345" }).success).toBe(false);
     });
 
+    it("menolak password kurang dari 8 karakter", () => {
+        expect(CreateNasabahSchema.safeParse({ ...valid, password: "pendek" }).success).toBe(false);
+    });
+
+    it("menolak tanpa password", () => {
+        const { password, ...tanpaPassword } = valid;
+        expect(CreateNasabahSchema.safeParse(tanpaPassword).success).toBe(false);
+    });
+
     it("tidak meneruskan userId dari client (anti privilege escalation)", () => {
         const parsed = CreateNasabahSchema.safeParse({ ...valid, userId: "tebak-tebakan" });
         expect(parsed.success).toBe(true);
         if (parsed.success) expect((parsed.data as Record<string, unknown>).userId).toBeUndefined();
+    });
+
+    it("tidak meneruskan role dari client (anti privilege escalation)", () => {
+        const parsed = CreateNasabahSchema.safeParse({ ...valid, role: "ADMIN" });
+        expect(parsed.success).toBe(true);
+        if (parsed.success) expect((parsed.data as Record<string, unknown>).role).toBeUndefined();
     });
 });
 
