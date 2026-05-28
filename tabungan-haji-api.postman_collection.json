@@ -1,46 +1,17 @@
 {
   "info": {
-    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "_postman_id": "53176968-4780-46b8-a00e-b9708da0babe",
     "name": "Tabungan Haji API",
     "description": "REST API untuk Tabungan Haji Online - BSI. Memakai JWT auth dengan role (USER/ADMIN) dan ownership nasabah-tabungan.\n\nAlur run: Login (Admin) -> Daftarkan Nasabah (Nasabah, publik: sekaligus membuat akun login) -> Login (Nasabah) -> Buka rekening -> Setor/tarik/lihat miliknya. Endpoint admin-only memakai {{admin_token}}, endpoint nasabah memakai {{token}}.\n\nPerubahan terbaru: registrasi nasabah kini PUBLIK lewat POST /api/v1/nasabah (body wajib menyertakan password; otomatis membuat baris di tabel users). Sebaliknya POST /api/v1/auth/register sekarang ADMIN-ONLY untuk membuat akun admin/staf (menerima field role).\n\nPrasyarat: seed akun admin lebih dulu via `npm run db:seed` (set ADMIN_EMAIL/ADMIN_PASSWORD di .env), lalu samakan variable admin_email/admin_password di koleksi ini.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40180465"
   },
-  "auth": {
-    "type": "bearer",
-    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
-  },
-  "variable": [
-    { "key": "base_url", "value": "http://localhost:3000", "type": "string" },
-    { "key": "token", "value": "", "type": "string" },
-    { "key": "admin_token", "value": "", "type": "string" },
-    { "key": "admin_email", "value": "admin@tabungan.test", "type": "string" },
-    { "key": "admin_password", "value": "admin123", "type": "string" },
-    { "key": "user_id", "value": "", "type": "string" },
-    { "key": "nasabah_id", "value": "", "type": "string" },
-    { "key": "tabungan_id", "value": "", "type": "string" },
-    { "key": "transaksi_id", "value": "", "type": "string" }
-  ],
   "item": [
     {
       "name": "Authentication",
       "item": [
         {
           "name": "Login (Admin)",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "auth", "login"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -55,20 +26,44 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Profil Saya (Admin)",
-          "request": {
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/me",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "auth", "me"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -82,25 +77,37 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Register Akun (Admin)",
-          "request": {
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"staff@tabungan.test\",\n  \"password\": \"password123\",\n  \"role\": \"ADMIN\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/register",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "auth", "register"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -113,7 +120,48 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"staff@tabungan.test\",\n  \"password\": \"password123\",\n  \"role\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -122,16 +170,6 @@
       "item": [
         {
           "name": "Health Check",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/health",
-              "host": ["{{base_url}}"],
-              "path": ["health"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -143,7 +181,24 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -152,21 +207,6 @@
       "item": [
         {
           "name": "Daftarkan Nasabah (Nasabah)",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nik\": \"3201234567890001\",\n  \"nama\": \"Ahmad Fauzi\",\n  \"email\": \"ahmad.fauzi@email.com\",\n  \"nomorHp\": \"081234567890\",\n  \"password\": \"password123\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/nasabah",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "nasabah"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -180,25 +220,43 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nik\": \"3201234567890001\",\n  \"nama\": \"Ahmad Fauzi\",\n  \"email\": \"ahmad.fauzi@email.com\",\n  \"nomorHp\": \"081234567890\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/nasabah",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "nasabah"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Login (Nasabah)",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"ahmad.fauzi@email.com\",\n  \"password\": \"password123\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "auth", "login"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -213,19 +271,44 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ahmad.fauzi@email.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Profil Saya (Nasabah)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/me",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "auth", "me"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -241,20 +324,27 @@
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Semua Nasabah (Admin)",
+          ],
           "request": {
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/nasabah",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "nasabah"]
+              "raw": "{{base_url}}/api/v1/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Semua Nasabah (Admin)",
           "event": [
             {
               "listen": "test",
@@ -266,19 +356,36 @@
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Detail Nasabah (Nasabah)",
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/nasabah/{{nasabah_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "nasabah", "{{nasabah_id}}"]
+              "raw": "{{base_url}}/api/v1/nasabah",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "nasabah"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Detail Nasabah (Nasabah)",
           "event": [
             {
               "listen": "test",
@@ -290,24 +397,27 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/nasabah/{{nasabah_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "nasabah",
+                "{{nasabah_id}}"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Update Nasabah (Nasabah)",
-          "request": {
-            "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nama\": \"Ahmad Fauzi Updated\",\n  \"nomorHp\": \"082345678901\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/nasabah/{{nasabah_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "nasabah", "{{nasabah_id}}"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -318,19 +428,41 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Ahmad Fauzi Updated\",\n  \"nomorHp\": \"082345678901\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/nasabah/{{nasabah_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "nasabah",
+                "{{nasabah_id}}"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Buka Rekening Tabungan Haji (Nasabah)",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/tabungan-haji",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -344,48 +476,106 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tabungan-haji",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Semua Rekening Milik Nasabah (Nasabah)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/nasabah/{{nasabah_id}}/tabungan",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "nasabah", "{{nasabah_id}}", "tabungan"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "nasabah",
+                "{{nasabah_id}}",
+                "tabungan"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Hapus Nasabah (Admin)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                  "pm.test(\"Status 200 atau 409\", () => {",
+                  "  pm.expect([200, 409]).to.include(pm.response.code);",
+                  "});"
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/nasabah/{{nasabah_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "nasabah",
+                "{{nasabah_id}}"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "Tabungan",
+      "name": "Tabungan Haji",
       "item": [
         {
-          "name": "Semua Rekening Tabungan (Admin)",
-          "request": {
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/tabungan-haji",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji"]
-            }
-          },
+          "name": "Semua Rekening Tabungan Haji (Admin)",
           "event": [
             {
               "listen": "test",
@@ -396,19 +586,36 @@
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Detail Rekening Tabungan (Nasabah)",
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}"]
+              "raw": "{{base_url}}/api/v1/tabungan-haji",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Detail Rekening Tabungan Haji (Nasabah)",
           "event": [
             {
               "listen": "test",
@@ -421,19 +628,27 @@
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Estimasi Tahun Berangkat (Nasabah)",
+          ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/estimasi",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}", "estimasi"]
+              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Estimasi Tahun Berangkat Haji (Nasabah)",
           "event": [
             {
               "listen": "test",
@@ -449,25 +664,84 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/estimasi",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}",
+                "estimasi"
+              ]
+            }
+          },
+          "response": []
         },
         {
-          "name": "Update Status Rekening (Admin)",
+          "name": "Update Status Rekening Haji (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"status\": \"DORMANT\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/status",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}", "status"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}",
+                "status"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Aktifkan Kembali Rekening Haji (Admin)",
           "event": [
             {
               "listen": "test",
@@ -478,36 +752,92 @@
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Aktifkan Kembali Rekening (Admin)",
+          ],
           "request": {
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"status\": \"AKTIF\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/status",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}", "status"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}",
+                "status"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Hapus Rekening Tabungan (Admin)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));"
+                  "pm.test(\"Status 200, 409 atau 422\", () => {",
+                  "  pm.expect([200, 409, 422]).to.include(pm.response.code);",
+                  "});"
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -516,23 +846,6 @@
       "item": [
         {
           "name": "Setoran (Nasabah)",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Idempotency-Key", "value": "{{$guid}}" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nominal\": 1000000,\n  \"metode\": \"TUNAI\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/setor",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}", "setor"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -548,24 +861,46 @@
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Setoran Transfer (Nasabah)",
+          ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nominal\": 5000000,\n  \"metode\": \"TRANSFER\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"nominal\": 1000000,\n  \"metode\": \"TUNAI\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/setor",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}", "setor"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}",
+                "setor"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Setoran Transfer (Nasabah)",
           "event": [
             {
               "listen": "test",
@@ -576,24 +911,42 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nominal\": 5000000,\n  \"metode\": \"TRANSFER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/setor",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}",
+                "setor"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Penarikan (Nasabah)",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nominal\": 500000,\n  \"metode\": \"TUNAI\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/penarikan",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}", "penarikan"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -610,24 +963,42 @@
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Penarikan Saldo Tidak Cukup (Nasabah)",
+          ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nominal\": 999999999999\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"nominal\": 500000,\n  \"metode\": \"TUNAI\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/penarikan",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}", "penarikan"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}",
+                "penarikan"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Penarikan Saldo Tidak Cukup (Nasabah)",
           "event": [
             {
               "listen": "test",
@@ -641,19 +1012,42 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nominal\": 999999999999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/penarikan",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}",
+                "penarikan"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Riwayat Transaksi (Nasabah)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/mutasi",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}", "mutasi"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -665,19 +1059,28 @@
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Detail Transaksi (Nasabah)",
+          ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/mutasi/{{transaksi_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}", "mutasi", "{{transaksi_id}}"]
+              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/mutasi",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}",
+                "mutasi"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "Detail Transaksi (Nasabah)",
           "event": [
             {
               "listen": "test",
@@ -690,98 +1093,26 @@
                 ]
               }
             }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Laporan",
-      "item": [
-        {
-          "name": "Laporan Transaksi Saya per Tabungan (Nasabah)",
+          ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/laporan/transaksi/saya/{{tabungan_id}}?tahun=2026&bulan=5",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "laporan", "transaksi", "saya", "{{tabungan_id}}"],
-              "query": [
-                { "key": "tahun", "value": "2026" },
-                { "key": "bulan", "value": "5" }
+              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/mutasi/{{transaksi_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}",
+                "mutasi",
+                "{{transaksi_id}}"
               ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Berformat CSV\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Laporan Transaksi per Tabungan (Admin)",
-          "request": {
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/laporan/transaksi/tabungan/{{tabungan_id}}?tahun=2026&bulan=5",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "laporan", "transaksi", "tabungan", "{{tabungan_id}}"],
-              "query": [
-                { "key": "tahun", "value": "2026" },
-                { "key": "bulan", "value": "5" }
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Berformat CSV\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Laporan Transaksi Semua (Admin)",
-          "request": {
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/laporan/transaksi?tahun=2026&bulan=5",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "laporan", "transaksi"],
-              "query": [
-                { "key": "tahun", "value": "2026" },
-                { "key": "bulan", "value": "5" }
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Berformat CSV\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"));"
-                ]
-              }
-            }
-          ]
+          "response": []
         }
       ]
     },
@@ -790,16 +1121,6 @@
       "item": [
         {
           "name": "Akses Tanpa Token (401)",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/nasabah",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "nasabah"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -811,19 +1132,29 @@
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "User Akses Endpoint Admin (403)",
+          ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/nasabah",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "nasabah"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "nasabah"
+              ]
             }
           },
+          "response": []
+        },
+        {
+          "name": "User Akses Endpoint Admin (403)",
           "event": [
             {
               "listen": "test",
@@ -835,25 +1166,26 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/nasabah",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "nasabah"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "NIK tidak valid (Nasabah)",
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nik\": \"123\",\n  \"nama\": \"Test\",\n  \"email\": \"test@email.com\",\n  \"nomorHp\": \"081234567890\",\n  \"password\": \"password123\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/nasabah",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "nasabah"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -867,53 +1199,89 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nik\": \"123\",\n  \"nama\": \"Test\",\n  \"email\": \"test@email.com\",\n  \"nomorHp\": \"081234567890\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/nasabah",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "nasabah"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Nominal negatif saat setoran (Nasabah)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nominal\": -100000\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/setor",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}", "setor"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}",
+                "setor"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
           "name": "Status tidak valid (Admin)",
-          "request": {
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
-            "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"INVALID_STATUS\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/status",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}", "status"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -924,64 +1292,49 @@
                 ]
               }
             }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Pembersihan",
-      "item": [
-        {
-          "name": "Hapus Rekening Tabungan (Admin)",
+          ],
           "request": {
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
-            "method": "DELETE",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"INVALID_STATUS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "tabungan-haji", "{{tabungan_id}}"]
+              "raw": "{{base_url}}/api/v1/tabungan-haji/{{tabungan_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tabungan-haji",
+                "{{tabungan_id}}",
+                "status"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status 200, 409 atau 422\", () => {",
-                  "  pm.expect([200, 409, 422]).to.include(pm.response.code);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Hapus Nasabah (Admin)",
-          "request": {
-            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }] },
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/nasabah/{{nasabah_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "nasabah", "{{nasabah_id}}"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Status 200 atau 409\", () => {",
-                  "  pm.expect([200, 409]).to.include(pm.response.code);",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         }
       ]
     },
@@ -990,15 +1343,6 @@
       "item": [
         {
           "name": "Logout (Nasabah)",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/logout",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "auth", "logout"]
-            }
-          },
           "event": [
             {
               "listen": "test",
@@ -1010,9 +1354,143 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
         }
       ]
+    },
+    {
+      "name": "Laporan",
+      "item": [
+        {
+          "name": "Buat Laporan (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/laporan/transaksi?tahun=2026&bulan=4",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "laporan",
+                "transaksi"
+              ],
+              "query": [
+                {
+                  "key": "tahun",
+                  "value": "2026"
+                },
+                {
+                  "key": "bulan",
+                  "value": "4"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "admin_token",
+      "value": ""
+    },
+    {
+      "key": "admin_email",
+      "value": "admin@tabungan.test"
+    },
+    {
+      "key": "admin_password",
+      "value": "admin123"
+    },
+    {
+      "key": "user_id",
+      "value": ""
+    },
+    {
+      "key": "nasabah_id",
+      "value": ""
+    },
+    {
+      "key": "tabungan_id",
+      "value": ""
+    },
+    {
+      "key": "transaksi_id",
+      "value": ""
     }
   ]
 }
