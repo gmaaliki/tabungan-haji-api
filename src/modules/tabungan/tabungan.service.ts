@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import type { UpdateStatusTabunganInput } from "./tabungan.schema";
+import { hitungEstimasi } from "./estimasi";
 
 function generateNomorRekening(): string {
     const digits = Math.floor(Math.random() * 1_000_000_000)
@@ -15,11 +16,13 @@ function appError(code: string, message: string): Error {
 }
 
 export const tabunganService = {
-    create: async (nasabahId: string) => {
-        const nasabah = await prisma.nasabah.findUnique({ where: { id: nasabahId } });
-        if (!nasabah) throw appError("NASABAH_NOT_FOUND", "Nasabah tidak ditemukan");
+    create: async (userId: string) => {
+        const nasabah = await prisma.nasabah.findFirst({ where: { userId, deletedAt: null } });
+        if (!nasabah) throw appError("NASABAH_NOT_REGISTERED", "Anda belum terdaftar sebagai nasabah");
+        const existing = await prisma.tabunganHaji.count({ where: { nasabahId: nasabah.id } });
+        if (existing > 0) throw appError("REKENING_EXISTS", "Nasabah sudah memiliki rekening tabungan haji");
         return prisma.tabunganHaji.create({
-            data: { nasabahId, nomorRekening: generateNomorRekening() },
+            data: { nasabahId: nasabah.id, nomorRekening: generateNomorRekening() },
             include: { nasabah: true },
         });
     },
@@ -40,6 +43,16 @@ export const tabunganService = {
             where: { nasabahId },
             orderBy: { dibukaAt: "desc" },
         }),
+
+    estimasi: async (id: string) => {
+        const tabungan = await prisma.tabunganHaji.findUnique({ where: { id } });
+        if (!tabungan) throw appError("NOT_FOUND", "Rekening tabungan tidak ditemukan");
+        return {
+            nomorRekening: tabungan.nomorRekening,
+            status: tabungan.status,
+            ...hitungEstimasi(tabungan.saldo, new Date().getUTCFullYear()),
+        };
+    },
 
     updateStatus: async (id: string, data: UpdateStatusTabunganInput) => {
         const tabungan = await prisma.tabunganHaji.findUnique({ where: { id } });

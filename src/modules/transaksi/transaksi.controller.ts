@@ -9,8 +9,11 @@ export const transaksiController = {
             return res.status(400).json({ error: "VALIDATION_ERR", details: parsed.error.flatten() });
         }
         try {
-            const result = await transaksiService.setoran(req.params.tabunganId, parsed.data.nominal, parsed.data.metode);
-            return res.status(201).json({ data: result, message: "Setoran berhasil" });
+            const idempotencyKey = req.header("Idempotency-Key") || undefined;
+            const result = await transaksiService.setoran(req.params.tabunganId, parsed.data.nominal, parsed.data.metode, idempotencyKey);
+            const status = result.replayed ? 200 : 201;
+            const message = result.replayed ? "Setoran sudah diproses sebelumnya" : "Setoran berhasil";
+            return res.status(status).json({ data: result, message });
         } catch (err: any) {
             if (err.code === "TABUNGAN_NOT_FOUND") return res.status(404).json({ error: "NOT_FOUND", message: err.message });
             if (err.code === "TABUNGAN_NOT_ACTIVE") return res.status(422).json({ error: "TABUNGAN_NOT_ACTIVE", message: err.message });

@@ -2,9 +2,12 @@ import "dotenv/config";
 import express, { type NextFunction, type Request, type Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import { authRoutes } from "./modules/authentication/auth.route";
+import { requireAuth } from "./modules/authentication/auth.middleware";
 import { nasabahRoutes } from "./modules/nasabah/nasabah.route";
 import { tabunganRoutes } from "./modules/tabungan/tabungan.route";
 import { transaksiRoutes } from "./modules/transaksi/transaksi.route";
+import { laporanRoutes } from "./modules/laporan/laporan.route";
 
 // BigInt serialization support
 (BigInt.prototype as any).toJSON = function () { return this.toString(); };
@@ -24,9 +27,11 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.use('/api/v1/nasabah', nasabahRoutes);
-app.use('/api/v1/tabungan', tabunganRoutes);
-app.use('/api/v1/tabungan', transaksiRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/nasabah', requireAuth, nasabahRoutes);
+app.use('/api/v1/tabungan-haji', requireAuth, tabunganRoutes);
+app.use('/api/v1/tabungan-haji', requireAuth, transaksiRoutes);
+app.use('/api/v1/laporan', requireAuth, laporanRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error(err);

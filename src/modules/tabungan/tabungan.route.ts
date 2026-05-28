@@ -1,9 +1,12 @@
 import { Router } from "express";
 import { tabunganController } from "./tabungan.controller";
+import { authorize, requireTabunganAccess } from "../authentication/auth.middleware";
 
 export const tabunganRoutes = Router();
 
-tabunganRoutes.get("/", tabunganController.findAll);
-tabunganRoutes.get("/:id", tabunganController.findById);
-tabunganRoutes.patch("/:id/status", tabunganController.updateStatus);
-tabunganRoutes.delete("/:id", tabunganController.delete);
+tabunganRoutes.post("/", tabunganController.create);
+tabunganRoutes.get("/", authorize("ADMIN"), tabunganController.findAll);
+tabunganRoutes.get("/:id", requireTabunganAccess("id"), tabunganController.findById);
+tabunganRoutes.get("/:id/estimasi", requireTabunganAccess("id"), tabunganController.estimasi);
+tabunganRoutes.patch("/:id/status", authorize("ADMIN"), tabunganController.updateStatus);
+tabunganRoutes.delete("/:id", authorize("ADMIN"), tabunganController.delete);

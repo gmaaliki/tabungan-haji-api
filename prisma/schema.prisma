@@ -5,8 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -14,13 +13,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique @db.VarChar(150)
+  password  String   @db.VarChar(255)
+  role      String   @default("USER") @db.VarChar(20)
+  nasabah   Nasabah?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model RevokedToken {
+  id        String   @id @default(uuid())
+  jti       String   @unique @db.VarChar(64)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("revoked_tokens")
+}
+
 model Nasabah {
   id           String         @id @default(uuid())
+  userId       String?        @unique @map("user_id")
+  user         User?          @relation(fields: [userId], references: [id])
   nik          String         @unique @db.VarChar(16)
   nama         String         @db.VarChar(100)
   email        String         @unique @db.VarChar(150)
   nomorHp      String         @map("nomor_hp") @db.VarChar(20)
   tabungan     TabunganHaji[]
+  deletedAt    DateTime?      @map("deleted_at")
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
 
@@ -50,7 +73,19 @@ model Transaksi {
   saldoSesudah   BigInt       @map("saldo_sesudah")
   referensi      String       @unique @db.VarChar(50)
   metode         String?      @db.VarChar(20)
+  idempotencyKey String?      @unique @map("idempotency_key") @db.VarChar(80)
   waktu          DateTime     @default(now())
 
   @@map("transaksi")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String   @db.VarChar(50)
+  entity    String   @db.VarChar(50)
+  entityId  String   @map("entity_id")
+  actorId   String?  @map("actor_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
 }

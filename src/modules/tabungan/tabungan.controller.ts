@@ -3,12 +3,14 @@ import { UpdateStatusTabunganSchema } from "./tabungan.schema";
 import { tabunganService } from "./tabungan.service";
 
 export const tabunganController = {
-    async create(req: Request<{ nasabahId: string }>, res: Response) {
+    async create(req: Request, res: Response) {
         try {
-            const tabungan = await tabunganService.create(req.params.nasabahId);
+            const tabungan = await tabunganService.create(req.user!.sub);
             return res.status(201).json({ data: tabungan, message: "Rekening tabungan haji berhasil dibuka" });
         } catch (err: any) {
-            if (err.code === "NASABAH_NOT_FOUND") return res.status(404).json({ error: "NOT_FOUND", message: err.message });
+            if (err.code === "NASABAH_NOT_REGISTERED") return res.status(403).json({ error: "NASABAH_NOT_REGISTERED", message: err.message });
+            if (err.code === "REKENING_EXISTS") return res.status(409).json({ error: "REKENING_EXISTS", message: err.message });
+            if (err.code === "P2002") return res.status(409).json({ error: "DUPLICATE_ENTRY", message: "Nomor rekening sudah terdaftar" });
             throw err;
         }
     },
@@ -29,6 +31,16 @@ export const tabunganController = {
     async findByNasabah(req: Request<{ nasabahId: string }>, res: Response) {
         const data = await tabunganService.findByNasabah(req.params.nasabahId);
         return res.status(200).json({ data, total: data.length, message: "OK" });
+    },
+
+    async estimasi(req: Request<{ id: string }>, res: Response) {
+        try {
+            const data = await tabunganService.estimasi(req.params.id);
+            return res.status(200).json({ data, message: "OK" });
+        } catch (err: any) {
+            if (err.code === "NOT_FOUND") return res.status(404).json({ error: "NOT_FOUND", message: err.message });
+            throw err;
+        }
     },
 
     async updateStatus(req: Request<{ id: string }>, res: Response) {

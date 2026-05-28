@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { transaksiController } from "./transaksi.controller";
+import { requireTabunganAccess } from "../authentication/auth.middleware";
 
 export const transaksiRoutes = Router();
 
-transaksiRoutes.post("/:tabunganId/setoran", transaksiController.setoran);
-transaksiRoutes.post("/:tabunganId/penarikan", transaksiController.penarikan);
-transaksiRoutes.get("/:tabunganId/transaksi", transaksiController.findByTabungan);
-transaksiRoutes.get("/:tabunganId/transaksi/:id", transaksiController.findById);
+transaksiRoutes.post("/:tabunganId/setor", requireTabunganAccess("tabunganId"), transaksiController.setoran);
+transaksiRoutes.post("/:tabunganId/penarikan", requireTabunganAccess("tabunganId"), transaksiController.penarikan);
+transaksiRoutes.get("/:tabunganId/mutasi", requireTabunganAccess("tabunganId"), transaksiController.findByTabungan);
+transaksiRoutes.get("/:tabunganId/mutasi/:id", requireTabunganAccess("tabunganId"), transaksiController.findById);

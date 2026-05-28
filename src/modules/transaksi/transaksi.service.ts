@@ -12,34 +12,54 @@ function appError(code: string, message: string): Error {
     return err;
 }
 
+async function findByIdempotencyKey(idempotencyKey: string) {
+    const transaksi = await prisma.transaksi.findUnique({ where: { idempotencyKey } });
+    if (!transaksi) return null;
+    const tabungan = await prisma.tabunganHaji.findUnique({ where: { id: transaksi.tabunganId } });
+    return { tabungan, transaksi, replayed: true };
+}
+
 export const transaksiService = {
-    setoran: async (tabunganId: string, nominal: number, metode?: string) => {
-        return prisma.$transaction(async (tx) => {
-            const tabungan = await tx.tabunganHaji.findUnique({ where: { id: tabunganId } });
-            if (!tabungan) throw appError("TABUNGAN_NOT_FOUND", "Rekening tabungan tidak ditemukan");
-            if (tabungan.status !== "AKTIF") throw appError("TABUNGAN_NOT_ACTIVE", "Rekening tidak aktif");
+    setoran: async (tabunganId: string, nominal: number, metode?: string, idempotencyKey?: string) => {
+        const replay = idempotencyKey ? await findByIdempotencyKey(idempotencyKey) : null;
+        if (replay) return replay;
 
-            const nominalBig = BigInt(nominal);
-            const saldoSebelum = tabungan.saldo;
-            const saldoSesudah = saldoSebelum + nominalBig;
+        try {
+            return await prisma.$transaction(async (tx) => {
+                const tabungan = await tx.tabunganHaji.findUnique({ where: { id: tabunganId } });
+                if (!tabungan) throw appError("TABUNGAN_NOT_FOUND", "Rekening tabungan tidak ditemukan");
+                if (tabungan.status !== "AKTIF") throw appError("TABUNGAN_NOT_ACTIVE", "Rekening tidak aktif");
 
-            const [tabunganUpdated, transaksi] = await Promise.all([
-                tx.tabunganHaji.update({ where: { id: tabunganId }, data: { saldo: saldoSesudah } }),
-                tx.transaksi.create({
-                    data: {
-                        tabunganId,
-                        jenis: "SETORAN",
-                        nominal: nominalBig,
-                        saldoSebelum,
-                        saldoSesudah,
-                        referensi: generateReferensi("SETORAN"),
-                        metode: metode ?? null,
-                    },
-                }),
-            ]);
+                const nominalBig = BigInt(nominal);
+                const saldoSebelum = tabungan.saldo;
+                const saldoSesudah = saldoSebelum + nominalBig;
 
-            return { tabungan: tabunganUpdated, transaksi };
-        });
+                const [tabunganUpdated, transaksi] = await Promise.all([
+                    tx.tabunganHaji.update({ where: { id: tabunganId }, data: { saldo: saldoSesudah } }),
+                    tx.transaksi.create({
+                        data: {
+                            tabunganId,
+                            jenis: "SETORAN",
+                            nominal: nominalBig,
+                            saldoSebelum,
+                            saldoSesudah,
+                            referensi: generateReferensi("SETORAN"),
+                            metode: metode ?? null,
+                            idempotencyKey: idempotencyKey ?? null,
+                        },
+                    }),
+                ]);
+
+                return { tabungan: tabunganUpdated, transaksi, replayed: false };
+            });
+        } catch (err: any) {
+            // Concurrent request with the same idempotency-key won the race; return its result.
+            if (err.code === "P2002" && idempotencyKey) {
+                const existing = await findByIdempotencyKey(idempotencyKey);
+                if (existing) return existing;
+            }
+            throw err;
+        }
     },
 
     penarikan: async (tabunganId: string, nominal: number, metode?: string) => {
