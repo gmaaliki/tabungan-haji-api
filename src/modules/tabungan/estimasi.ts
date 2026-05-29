@@ -22,6 +22,7 @@ export function hitungEstimasi(
     saldo: bigint,
     tahunSekarang: number,
     config: EstimasiConfig = DEFAULT_ESTIMASI_CONFIG,
+    tanggalDaftarHaji?: Date | null,
 ): HasilEstimasi {
     if (saldo < config.setoranAwal) {
         return {
@@ -35,13 +36,17 @@ export function hitungEstimasi(
         };
     }
 
+    const tahunDaftar = tanggalDaftarHaji
+        ? tanggalDaftarHaji.getUTCFullYear()
+        : tahunSekarang;
+
     return {
         eligible: true,
         saldo: saldo.toString(),
         setoranAwal: config.setoranAwal.toString(),
         kurang: "0",
         masaTungguTahun: config.masaTungguTahun,
-        tahunPerkiraan: tahunSekarang + config.masaTungguTahun,
+        tahunPerkiraan: tahunDaftar + config.masaTungguTahun,
         keterangan: "Estimasi tahun keberangkatan berdasarkan masa tunggu nasional",
     };
 }

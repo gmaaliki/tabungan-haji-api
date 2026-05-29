@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { UpdateStatusTabunganSchema } from "./tabungan.schema";
+import { UpdateStatusTabunganSchema, UpdateTanggalDaftarHajiSchema } from "./tabungan.schema";
 import { tabunganService } from "./tabungan.service";
 
 export const tabunganController = {
@@ -54,6 +54,22 @@ export const tabunganController = {
         } catch (err: any) {
             if (err.code === "NOT_FOUND") return res.status(404).json({ error: "NOT_FOUND", message: err.message });
             if (err.code === "ALREADY_CLOSED") return res.status(422).json({ error: "ALREADY_CLOSED", message: err.message });
+            throw err;
+        }
+    },
+
+    async updateTanggalDaftar(req: Request<{ id: string }>, res: Response) {
+        const parsed = UpdateTanggalDaftarHajiSchema.safeParse(req.body);
+        if (!parsed.success) {
+            return res.status(400).json({ error: "VALIDATION_ERR", details: parsed.error.flatten() });
+        }
+        try {
+            const tabungan = await tabunganService.updateTanggalDaftar(req.params.id, parsed.data);
+            return res.status(200).json({ data: tabungan, message: "Tanggal daftar haji berhasil ditetapkan" });
+        } catch (err: any) {
+            if (err.code === "NOT_FOUND") return res.status(404).json({ error: "NOT_FOUND", message: err.message });
+            if (err.code === "ALREADY_SET") return res.status(409).json({ error: "ALREADY_SET", message: err.message });
+            if (err.code === "SETORAN_AWAL_NOT_REACHED") return res.status(422).json({ error: "SETORAN_AWAL_NOT_REACHED", message: err.message });
             throw err;
         }
     },

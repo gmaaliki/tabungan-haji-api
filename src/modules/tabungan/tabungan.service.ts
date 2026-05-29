@@ -1,6 +1,6 @@
 import { prisma } from "../../lib/prisma";
-import type { UpdateStatusTabunganInput } from "./tabungan.schema";
-import { hitungEstimasi } from "./estimasi";
+import type { UpdateStatusTabunganInput, UpdateTanggalDaftarHajiInput } from "./tabungan.schema";
+import { hitungEstimasi, DEFAULT_ESTIMASI_CONFIG } from "./estimasi";
 
 function generateNomorRekening(): string {
     const digits = Math.floor(Math.random() * 1_000_000_000)
@@ -51,8 +51,20 @@ export const tabunganService = {
         return {
             nomorRekening: tabungan.nomorRekening,
             status: tabungan.status,
-            ...hitungEstimasi(tabungan.saldo, new Date().getUTCFullYear()),
+            tanggalDaftarHaji: tabungan.tanggalDaftarHaji,
+            ...hitungEstimasi(tabungan.saldo, new Date().getUTCFullYear(), DEFAULT_ESTIMASI_CONFIG, tabungan.tanggalDaftarHaji),
         };
+    },
+
+    updateTanggalDaftar: async (id: string, data: UpdateTanggalDaftarHajiInput) => {
+        const tabungan = await prisma.tabunganHaji.findUnique({ where: { id } });
+        if (!tabungan) throw appError("NOT_FOUND", "Rekening tabungan tidak ditemukan");
+        if (tabungan.tanggalDaftarHaji) throw appError("ALREADY_SET", "Tanggal daftar haji sudah ditetapkan dan tidak dapat diubah");
+        if (tabungan.saldo < DEFAULT_ESTIMASI_CONFIG.setoranAwal) throw appError("SETORAN_AWAL_NOT_REACHED", "Saldo belum mencapai setoran awal");
+        return prisma.tabunganHaji.update({
+            where: { id },
+            data: { tanggalDaftarHaji: data.tanggalDaftarHaji },
+        });
     },
 
     updateStatus: async (id: string, data: UpdateStatusTabunganInput) => {

@@ -9,4 +9,5 @@ tabunganRoutes.get("/", authorize("ADMIN"), tabunganController.findAll);
 tabunganRoutes.get("/:id", requireTabunganAccess("id"), tabunganController.findById);
 tabunganRoutes.get("/:id/estimasi", requireTabunganAccess("id"), tabunganController.estimasi);
 tabunganRoutes.patch("/:id/status", authorize("ADMIN"), tabunganController.updateStatus);
+tabunganRoutes.patch("/:id/tanggal-daftar", requireTabunganAccess("id"), tabunganController.updateTanggalDaftar);
 tabunganRoutes.delete("/:id", authorize("ADMIN"), tabunganController.delete);

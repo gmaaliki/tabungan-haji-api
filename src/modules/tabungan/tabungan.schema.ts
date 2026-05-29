@@ -5,3 +5,9 @@ export const UpdateStatusTabunganSchema = z.object({
 });
 
 export type UpdateStatusTabunganInput = z.infer<typeof UpdateStatusTabunganSchema>;
+
+export const UpdateTanggalDaftarHajiSchema = z.object({
+    tanggalDaftarHaji: z.coerce.date(),
+});
+
+export type UpdateTanggalDaftarHajiInput = z.infer<typeof UpdateTanggalDaftarHajiSchema>;
