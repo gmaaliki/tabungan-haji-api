@@ -14,7 +14,23 @@ import { laporanRoutes } from "./modules/laporan/laporan.route";
 
 export const app = express();
 
-app.use(cors());
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? ["https://tabungan-haji-web.vercel.app"]
+    : ["http://localhost:3001"];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Allow non-browser clients (curl, Postman) that send no Origin header.
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Origin ${origin} tidak diizinkan oleh CORS`));
+    },
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(express.json());
 
