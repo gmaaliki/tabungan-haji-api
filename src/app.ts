@@ -14,10 +14,15 @@ import { laporanRoutes } from "./modules/laporan/laporan.route";
 
 export const app = express();
 
-const allowedOrigins =
+// Defaults per environment; override/extend with CORS_ORIGINS (comma-separated).
+const defaultOrigins =
   process.env.NODE_ENV === "production"
     ? ["https://tabungan-haji-web.vercel.app"]
     : ["http://localhost:3001"];
+
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
+  : defaultOrigins;
 
 app.use(
   cors({
@@ -26,7 +31,8 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      return callback(new Error(`Origin ${origin} tidak diizinkan oleh CORS`));
+      // Disallowed: respond without CORS headers (no 500), browser blocks it.
+      return callback(null, false);
     },
     credentials: true,
   })
