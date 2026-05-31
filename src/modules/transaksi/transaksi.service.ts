@@ -93,8 +93,12 @@ export const transaksiService = {
         });
     },
 
-    findByTabungan: (tabunganId: string) =>
-        prisma.transaksi.findMany({ where: { tabunganId }, orderBy: { waktu: "desc" } }),
+    findByTabungan: (tabunganId: string, opts: { limit?: number } = {}) =>
+        prisma.transaksi.findMany({
+            where: { tabunganId },
+            orderBy: { waktu: "desc" },
+            ...(opts.limit ? { take: opts.limit } : {}),
+        }),
 
     findById: (id: string) => prisma.transaksi.findUnique({ where: { id } }),
 };

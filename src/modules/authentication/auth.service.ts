@@ -61,7 +61,25 @@ export const authService = {
             where: { id: userId },
             include: {
                 nasabah: {
-                    select: { id: true, nik: true, nama: true, email: true, nomorHp: true, deletedAt: true },
+                    select: {
+                        id: true,
+                        nik: true,
+                        nama: true,
+                        email: true,
+                        nomorHp: true,
+                        deletedAt: true,
+                        tabungan: {
+                            select: {
+                                id: true,
+                                nomorRekening: true,
+                                saldo: true,
+                                status: true,
+                                tanggalDaftarHaji: true,
+                                dibukaAt: true,
+                            },
+                            orderBy: { dibukaAt: "desc" },
+                        },
+                    },
                 },
             },
         });
@@ -70,7 +88,14 @@ export const authService = {
         const { password, nasabah, ...identity } = user;
         const profile =
             nasabah && !nasabah.deletedAt
-                ? { id: nasabah.id, nik: nasabah.nik, nama: nasabah.nama, email: nasabah.email, nomorHp: nasabah.nomorHp }
+                ? {
+                      id: nasabah.id,
+                      nik: nasabah.nik,
+                      nama: nasabah.nama,
+                      email: nasabah.email,
+                      nomorHp: nasabah.nomorHp,
+                      tabungan: nasabah.tabungan,
+                  }
                 : null;
 
         return { ...identity, nasabah: profile };
