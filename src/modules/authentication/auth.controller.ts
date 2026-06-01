@@ -43,7 +43,10 @@ export const authController = {
             const data = await authService.me(req.user.sub);
             return res.status(200).json({ data, message: "OK" });
         } catch (err: any) {
-            if (err.code === "NOT_FOUND") return res.status(404).json({ error: "NOT_FOUND", message: err.message });
+            // Token verified but the user it references no longer exists (e.g. after a
+            // DB reset). Treat as a stale session, not a 404 — the client should log
+            // the user out, not surface a "not found" error on the dashboard.
+            if (err.code === "NOT_FOUND") return res.status(401).json({ error: "STALE_SESSION", message: "Sesi tidak valid, silakan login ulang" });
             throw err;
         }
     },
